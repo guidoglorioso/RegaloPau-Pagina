@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Un regalo especial para ti</title>
+    <title>La mejor pagina</title>
     
     <style>
         /* Estilos generales y paleta de colores cálida */
@@ -522,12 +522,14 @@
             // Ejemplo: imagen única para la página 2
             const media = document.getElementById('final-media');
             media.innerHTML = `
+                <audio id="momento-lindo-audio" src="./sonidos/campeonArg.mp3" preload="auto"></audio>
                 <div class="final-gallery">
                     <div class="gallery-item"><img id="momentoLindo1" src="./imagenes/momentoLindo1.jpg" alt="momento lindo 1"></div>
                     <div class="gallery-item"><img id="momentoLindo7" src="./imagenes/momentoLindo7.jpg" alt="momento lindo 7"></div>
                 </div>
 
                 <div><img id="momentoLindo5" src="./imagenes/momentoLindo5.jpg" alt="momento lindo 5"></div>
+
                 <div class="final-gallery">
                     <div class="gallery-item"><img id="momentoLindo2" src="./imagenes/momentoLindo2.jpg" alt="momento lindo 2"></div>
                     <div class="gallery-item"><img id="momentoLindo3" src="./imagenes/momentoLindo3.jpg" alt="momento lindo 3"></div>
@@ -538,6 +540,17 @@
                     <div class="gallery-item"><img id="momentoLindo4" src="./imagenes/momentoLindo4.jpg" alt="momento lindo 4"></div>
                 </div>
             `;
+
+            const campeonArg = document.getElementById('momento-lindo-audio');
+            enableDuckingFor(campeonArg);
+            const img2 = document.getElementById('momentoLindo2');
+            img2.onclick = () => {
+                campeonArg.currentTime = 0;
+                campeonArg.play().catch(err => {
+                    console.warn('No se pudo reproducir el audio:', err);
+                });   
+            };
+
         }
 
         function showPage3() {
@@ -564,7 +577,7 @@
             currentFinalPage = 4;
             showFinalPage({
                 title: "Estuvimos elegantes",
-                paragraphTop: "(vos mas por que sos una reina)",
+                paragraphTop: "vos mas por que sos una reina",
                 paragraphBottom: "Oh la lá, señor francés"
             });
 
