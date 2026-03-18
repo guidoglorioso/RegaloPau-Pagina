@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un regalo especial para ti</title>
+    
+    <style>
+        /* Estilos generales y paleta de colores cálida */
+        :root {
+            --bg-color: #fdfbfb;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --accent-color: #d4a373; /* Un tono cálido, tipo arena/dorado */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Contenedor principal estilo tarjeta */
+        .card {
+            background-color: var(--card-bg);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            
+            /* Animación de entrada suave */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-family: 'Georgia', serif; /* Un toque más elegante para el título */
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .message-content {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* Estilo para la imagen central */
+        .photo-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Botón interactivo */
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(212, 163, 115, 0.4);
+        }
+
+        /* Mensaje oculto que se revela con JavaScript */
+        #secret-message {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff9f2;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        #secret-message.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Modal personalizado */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-message {
+            font-size: 1.3em;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(212, 163, 115, 0.4);
+        }
+
+        .modal-btn.no {
+            background-color: #888;
+        }
+
+        .modal-btn.no:hover {
+            box-shadow: 0 5px 15px rgba(136, 136, 136, 0.4);
+        }
+
+        /* Página final en blanco */
+        #final-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            overflow-y: auto;
+            z-index: 2000;
+            padding: 40px 20px;
+            box-sizing: border-box;
+
+            opacity: 0;
+            transform: translateY(40px);
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.5s ease, transform 0.5s ease, visibility 0s linear 0.5s;
+        }
+
+        #final-page.show {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.5s ease, transform 0.5s ease, visibility 0s;
+        }
+
+        .final-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .final-content h2 {
+            color: var(--accent-color);
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            font-family: 'Georgia', serif;
+        }
+
+        .final-content .paragraph {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--text-main);
+            margin-bottom: 30px;
+        }
+
+        .final-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+        }
+
+        /* Contenedor para el contenido multimedia de cada página */
+        #final-media {
+            margin: 30px 0;
+        }
+
+        .final-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
+            justify-items: center; /* Centra cada item dentro de su celda */
+        }
+
+        .final-gallery .gallery-item {
+            width: 700px;
+            max-width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .final-gallery .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .final-gallery .gallery-item.bottom {
+            grid-column: 1 / -1; /* Ocupa todo el ancho de la galería */
+        }
+
+        .final-gallery-bottom {
+            margin-top: 20px;
+        }
+
+        .final-gallery-bottom img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        /* Collage para la página 7 */
+        .collage {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 300px;
+            gap: 10px;
+        }
+
+        .collage .item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+            /* Fuerza relación de aspecto 4:3 */
+            aspect-ratio: 4 / 3;
+        }
+
+        .collage .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>¡Felices 7 años!</h1> 
+
+        <div class="photo-container">
+            <img src="./imagenes/portada.jpg" alt="Foto con mucho amor">
+        </div>
+
+        <p class="subtitle">A veces las palabras no son suficientes por lo que:</p>
+        
+        <button class="btn" onclick="estasSeguraBTN()">Apretar si sos Paula</button>
+
+        <div id="secret-message">
+            <p>"Y acá va el mensaje final, el remate o la posdata secreta que hace que el regalo sea aún mejor. ¡Espero que te guste!"</p>
+        </div>
+    </div>
+
+    <!-- Modal personalizado -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <p class="modal-message" id="modal-message"></p>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="handleSi()">Si</button>
+                <button class="modal-btn no" onclick="handleNo()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página final en blanco -->
+    <div id="final-page">
+        <div class="final-content">
+            <h2 id="final-title">Título aquí</h2>
+            <p class="paragraph" id="final-paragraph-top">Párrafo superior aquí</p>
+            <div id="final-media"></div>
+            <p class="paragraph" id="final-paragraph-bottom">Párrafo inferior aquí</p>
+            <button class="btn" onclick="nextPage()">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        // Variables para el modal
+        let apretadas = 0;
+        const mensajes = ["¿Estás segura de que sos Paula?", "¿Estás realmente segura?", "Mira que te puedo ver por la cámara...", "Si sos Paula, apretalo tranquila, si no sos Paula, no lo aprietes..."];
+        const imagenNoSoyPaula = "./imagenes/noSosPaula.jpg"; // Cambia esta URL a la imagen que quieras mostrar
+
+        // Música de fondo (reproduce siempre desde la primera página)
+        let bgMusic;
+        let bgMusicStarted = false;
+        let bgDuckCount = 0;
+
+        function ensureBgMusic() {
+            if (!bgMusic) {
+                bgMusic = new Audio("./sonidos/fondo.mp3");
+                bgMusic.loop = true;
+                bgMusic.volume = 0.4;
+                bgMusic.preload = "auto";
+            }
+        }
+
+        function setBgMusicVolume(vol) {
+            if (!bgMusic) return;
+            bgMusic.volume = vol;
+        }
+
+        function duckBackgroundMusic(start) {
+            ensureBgMusic();
+            if (start) {
+                bgDuckCount++;
+            } else {
+                bgDuckCount = Math.max(0, bgDuckCount - 1);
+            }
+            setBgMusicVolume(bgDuckCount > 0 ? 0.08 : 0.4);
+        }
+
+        function enableDuckingFor(audio) {
+            if (!audio) return;
+            audio.addEventListener('play', () => duckBackgroundMusic(true));
+            audio.addEventListener('ended', () => duckBackgroundMusic(false));
+            audio.addEventListener('pause', () => duckBackgroundMusic(false));
+        }
+
+        function startBackgroundMusic() {
+            ensureBgMusic();
+            if (bgMusicStarted) return;
+            bgMusicStarted = true;
+            bgMusic.play().catch(() => {
+                // Algunos navegadores bloquean reproducción automática sin interacción.
+            });
+        }
+
+        // Páginas finales
+        let currentFinalPage = 1; // Página actualmente visible (1-10)
+
+        function estasSeguraBTN() {
+            mostrarModal();
+        }
+
+        function mostrarModal() {
+            const modal = document.getElementById('modal-overlay');
+            const mensaje = document.getElementById('modal-message');
+
+            if (apretadas < mensajes.length) {
+                mensaje.textContent = mensajes[apretadas];
+                modal.classList.add('show');
+            } else {
+                // Si ya pasó todos los mensajes, mostrar la primera página final
+                showPage1();
+                modal.classList.remove('show');
+            }
+        }
+
+        function handleSi() {
+            apretadas++;
+            const modal = document.getElementById('modal-overlay');
+
+            if (apretadas < mensajes.length) {
+                mostrarModal(); // Mostrar el siguiente mensaje
+            } else {
+                // Si llegamos al final, mostrar la primera página final
+                showPage1();
+                modal.classList.remove('show');
+            }
+        }
+
+        function showFinalPage({ title, paragraphTop, paragraphBottom }) {
+            document.getElementById('final-title').textContent = title;
+            document.getElementById('final-paragraph-top').textContent = paragraphTop;
+            document.getElementById('final-paragraph-bottom').textContent = paragraphBottom;
+
+            const finalMedia = document.getElementById('final-media');
+            finalMedia.innerHTML = ''; // Limpia el contenedor multimedia (cada página decide qué poner)
+
+            const card = document.querySelector('.card');
+            const button = document.querySelector('.btn');
+            const finalPage = document.getElementById('final-page');
+
+            card.style.display = 'none';
+            button.style.display = 'none';
+            
+            // Forzar re-inicio de animación cuando ya está visible
+            finalPage.classList.remove('show');
+            void finalPage.offsetWidth; // forzar reflow
+            finalPage.classList.add('show');
+        }
+
+        /*
+          Páginas finales (hasta 10).
+          Copia/pega la misma estructura y completa los textos/imagen que quieras.
+        */
+        function showPage1() {
+            currentFinalPage = 1;
+            startBackgroundMusic();
+            showFinalPage({
+                title: "El principio de todo",
+                paragraphTop: "La verdad que no esta muy claro de cuando empezo todo, se me ocurren algunos momentos posibles",
+                paragraphBottom: "Creo que no tiene mucha importancia el momento mas bien el sentimiento."
+            });
+
+            // Contenido específico de la página 1 (galería de 3 fotos, la de abajo cambia al hacer clic)
+            const media = document.getElementById('final-media');
+            media.innerHTML = `
+                <audio id="cuello-roto" src="./sonidos/cuelloRoto.mp3" preload="auto"></audio>
+                
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="pag1-img1" src="./imagenes/pag1_foto1.jpg" alt="Foto 1"></div>
+                    <div class="gallery-item"><img id="pag1-img4" src="./imagenes/pag1_foto4.jpg" alt="Foto 4"></div>
+                </div>
+                  <div><img id="pag1-img3" src="./imagenes/pag1_foto3.jpg" alt="Foto 3"></div>
+            `;
+            
+            const img2 = document.getElementById('pag1-img1');
+            img2.style.cursor = 'pointer';
+            img2.onclick = () => {
+                img2.src = './imagenes/pag1_foto2.jpg';
+            };
+            
+            const cuelloRoto = document.getElementById('cuello-roto');
+            enableDuckingFor(cuelloRoto);
+            const img4 = document.getElementById('pag1-img4');
+            img4.style.cursor = 'pointer';
+
+            img4.onclick = () => {
+                cuelloRoto.currentTime = 0;
+                cuelloRoto.play().catch(err => {
+                    console.warn('No se pudo reproducir el audio:', err);
+                });   
+            };
+        }
+
+        function showPage2() {
+            currentFinalPage = 2;
+            showFinalPage({
+                title: "Hubo muchos momentos lindos",
+                paragraphTop: "Que van a quedar grabados para siempre en mi memoria (si no me lo olvido antes)",
+                paragraphBottom: "Y en mi corazón, que es lo mas importante"
+            });
+
+            // Ejemplo: imagen única para la página 2
+            const media = document.getElementById('final-media');
+            media.innerHTML = `
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="momentoLindo1" src="./imagenes/momentoLindo1.jpg" alt="momento lindo 1"></div>
+                    <div class="gallery-item"><img id="momentoLindo7" src="./imagenes/momentoLindo7.jpg" alt="momento lindo 7"></div>
+                </div>
+
+                <div><img id="momentoLindo5" src="./imagenes/momentoLindo5.jpg" alt="momento lindo 5"></div>
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="momentoLindo2" src="./imagenes/momentoLindo2.jpg" alt="momento lindo 2"></div>
+                    <div class="gallery-item"><img id="momentoLindo3" src="./imagenes/momentoLindo3.jpg" alt="momento lindo 3"></div>
+                </div>
+                <br>
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="momentoLindo6" src="./imagenes/momentoLindo6.jpg" alt="momento lindo 6"></div>
+                    <div class="gallery-item"><img id="momentoLindo4" src="./imagenes/momentoLindo4.jpg" alt="momento lindo 4"></div>
+                </div>
+            `;
+        }
+
+        function showPage3() {
+            currentFinalPage = 3;
+            showFinalPage({
+                title: "Compartimos los mejores paisajes juntos",
+                paragraphTop: "Aunque siempre el mejor paisaje vas a ser vos",
+                paragraphBottom: "y tus nalgotas"
+            });
+
+            
+            const media = document.getElementById('final-media');
+            media.innerHTML = `
+                
+                <div><img id="paisaje1" src="./imagenes/paisaje1.jpg" alt="elegante 1"></div>
+                <div><img id="paisaje2" src="./imagenes/paisaje2.jpg" alt="elegante 2"></div>
+
+                <div><img id="paisaje3" src="./imagenes/paisaje3.jpg" alt="elegante 1"></div>
+                <div><img id="paisaje4" src="./imagenes/paisaje4.jpg" alt="elegante 2"></div>
+                `;
+        }
+
+        function showPage4() {
+            currentFinalPage = 4;
+            showFinalPage({
+                title: "Estuvimos elegantes",
+                paragraphTop: "(vos mas por que sos una reina)",
+                paragraphBottom: "Oh la lá, señor francés"
+            });
+
+            const media = document.getElementById('final-media');
+            media.innerHTML = `
+                <div class="final-gallery">
+                    <audio id="elegante-audio" src="./sonidos/wowSonido.mp3" preload="auto"></audio>
+                
+                    <div class="gallery-item"><img id="elegante1" src="./imagenes/elegante1.jpg" alt="elegante 1"></div>
+                    <div class="gallery-item"><img id="elegante2" src="./imagenes/elegante2.jpg" alt="elegante 2"></div>
+                </div>
+
+                <div><img id="elegante3" src="./imagenes/elegante3.jpg" alt="elegante 3"></div>
+            `;
+            const eleganteAudio = document.getElementById('elegante-audio');
+            enableDuckingFor(eleganteAudio);
+            const elegante = ['elegante1', 'elegante2', 'elegante3'];
+            elegante.forEach(id => {
+                const img = document.getElementById(id);
+                if (!img) return;
+                img.onclick = () => {
+                    eleganteAudio.currentTime = 0;
+                    eleganteAudio.play().catch(err => {
+                        console.warn('No se pudo reproducir el audio:', err);
+                    });
+                };
+            });
+
+        }
+
+
+        function showPage5() {
+            currentFinalPage = 5;
+            showFinalPage({
+                title: "Estuvimos fisuras",
+                paragraphTop: "Vos seguis siendo una reina por mas que estemos fisuras...",
+                paragraphBottom: ""
+            });
+
+            const media = document.getElementById('final-media');
+             media.innerHTML = `
+                <audio id="papi-audio" src="./sonidos/pobrePapi.mp3" preload="auto"></audio>
+                
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="fisura3" src="./imagenes/fisuras3.jpg" alt="fisuras3"></div>
+                    <div class="gallery-item"><img id="fisura4" src="./imagenes/fisuras4.jpg" alt="fisuras4"></div>
+                </div>
+                <br>
+                <img src="./imagenes/fisuras5.jpg" alt="fisuras5">
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="fisura2" src="./imagenes/fisuras2.jpg" alt="fisuras2"></div>
+                    <div class="gallery-item"><img id="fisura6" src="./imagenes/fisuras6.jpg" alt="fisuras6"></div>
+                </div>
+                <img id= "fisuras7" src="./imagenes/fisuras7.jpg" alt="fisuras7">
+                <img id= "fisuras8" src="./imagenes/fisuras8.jpg" alt="fisuras8">
+                <img id= "fisuras1" src="./imagenes/fisuras1.jpg" alt="fisuras1">
+                `;
+                const papiAudio = document.getElementById('papi-audio');
+                enableDuckingFor(papiAudio);
+                const img = document.getElementById('fisura6');
+                img.onclick = () => {
+                    papiAudio.currentTime = 0;
+                    papiAudio.play().catch(err => {
+                        console.warn('No se pudo reproducir el audio:', err);
+                    });
+                };
+
+        }
+
+        function showPage6() {
+            currentFinalPage = 6;
+            showFinalPage({
+                title: "Hubo momentos duros",
+                paragraphTop: "Pero supimos superarlos juntos",
+                paragraphBottom: "Si superamos todo esto, podemos superar cualquier cosa"
+            });
+
+            const media = document.getElementById('final-media');
+            media.innerHTML = `
+                <img src="./imagenes/paulaSufriendo2.jpg" alt="PaulaSufriendo2">
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="paulaSufriendo" src="./imagenes/paulaSufriendo.jpg" alt="PaulaSufriendo"></div>
+                    <div class="gallery-item"><img id="paulaSufriendo3" src="./imagenes/paulaSufriendo3.jpg" alt="PaulaSufriendo3"></div>
+                </div>
+                <br>
+                <img src="./imagenes/paulaSufriendo5.jpg" alt="PaulaSufriendo5">
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="paulaSufriendo4" src="./imagenes/paulaSufriendo4.jpg" alt="PaulaSufriendo4"></div>
+                    <div class="gallery-item"><img id="paulaSufriendo6" src="./imagenes/paulaSufriendo6.jpg" alt="PaulaSufriendo6"></div>
+                </div>
+                `;
+        }
+        function nombreRandom(a, b) {
+        return Math.random() < 0.5 ? a : b;
+        }
+        function showPage7() {
+            currentFinalPage = 7;
+            showFinalPage({
+                title: "Pero hubo una cosa que nunca faltó",
+                paragraphTop: "Los perritos",
+                paragraphBottom: "Y entonces paula estaba contenta. ."
+            });
+
+            const media = document.getElementById('final-media');
+            const audioSrc = nombreRandom("./sonidos/ladrido1.mp3", "./sonidos/ladrido2.mp3");
+
+            media.innerHTML = `
+                <audio id="bark-audio" src="${audioSrc}" preload="auto"></audio>
+                <div class="final-gallery">
+                    <div class="gallery-item"><img id="perro1" src="./imagenes/perro1.jpg" alt="Perro 1"></div>
+                    <div class="gallery-item"><img id="perro2" src="./imagenes/perro2.jpg" alt="Perro 2"></div>
+                </div>
+                <br>
+                <div class="final-gallery">    
+                    <div class="gallery-item"><img id="perro3" src="./imagenes/perro3.jpg" alt="Perro 3"></div>
+                    <div class="gallery-item"><img id="perro5" src="./imagenes/perro5.jpg" alt="Perro 5"></div>
+                </div>
+                
+                <div><img id="perro4" src="./imagenes/perro4.jpg" alt="Perro 4"></div>
+            `;
+
+            const barkAudio = document.getElementById('bark-audio');
+            enableDuckingFor(barkAudio);
+            const dogs = ['perro1', 'perro2', 'perro3', 'perro4', 'perro5'];
+            dogs.forEach(id => {
+                const img = document.getElementById(id);
+                if (!img) return;
+                img.onclick = () => {
+                    barkAudio.currentTime = 0;
+                    barkAudio.play().catch(err => {
+                        console.warn('No se pudo reproducir el audio:', err);
+                    });
+                };
+            });
+        }
+
+        function showPage8() {
+            currentFinalPage = 8;
+            showFinalPage({
+                title: "Y mis favoritos, los momentos randoms",
+                paragraphTop: "Porque si la vida no la tomamos con humor, ¿Qué sería de nosotros?",
+                paragraphBottom: "Como dice el dicho: 'Prefiero reir 1 dia con ella, que comer milanesa solo'"
+            });
+
+            const media = document.getElementById('final-media');
+            media.innerHTML = `
+            <div class="final-gallery">
+                <div class="gallery-item"><img id="momentoRandom1" src="./imagenes/random1.jpg" alt="random 1"></div>
+                <div class="gallery-item"><img id="momentoRandom3" src="./imagenes/random3.jpg" alt="random 3"></div>
+            </div>
+            
+            <div><img id="momentoRandom2" src="./imagenes/random2.jpg" alt="random 2"></div>
+            <div><img id="momentoRandom5" src="./imagenes/random5.jpg" alt="random 5"></div>
+            <div><img id="momentoRandom4" src="./imagenes/random4.jpg" alt="random 4"></div>
+        `;    
+        }
+
+        function showPage9() {
+            currentFinalPage = 9;
+            showFinalPage({
+                title: "Carta del enamorado",
+                paragraphTop: "Si bien te dije que las palabras no eran suficientes, a veces algunas palabras pueden ser lindas.           Te quiero <3",
+                paragraphBottom: "Puto el que lee"
+            });
+
+            const media = document.getElementById('final-media');
+            media.innerHTML = `<img src="./imagenes/Carta Pau.jpg" alt="Carta del enamorado">`;
+        }
+
+        function nextPage() {
+            const next = currentFinalPage + 1;
+            if (next <= 9) {
+                window["showPage" + next]();
+            }
+        }
+
+        function handleNo() {
+            const modal = document.getElementById('modal-overlay');
+            modal.classList.remove('show');
+            
+            // Mostrar la imagen cuando el usuario dice que NO es Paula
+            const card = document.querySelector('.card');
+            card.innerHTML = `<img src="${imagenNoSoyPaula}" alt="No sos Paula" style="max-width: 100%; border-radius: 15px;">`;
+        }
+    </script>
+
+</body>
+</html>
